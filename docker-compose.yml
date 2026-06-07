@@ -1,0 +1,38 @@
+# ============================================================
+# Webhook Relay for Ovatu — docker-compose
+#
+# Quick start:
+#   docker compose up -d
+#
+# The server will be reachable at http://localhost:3001
+# ============================================================
+
+services:
+  # ---- Backend API ----
+  server:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: ovatu-relay-server
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3001}:3001"
+    environment:
+      # Node / app settings
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=3001
+      - HOST=0.0.0.0
+
+      # Ovatu API
+      - OVATU_API_BASE_URL=${OVATU_API_BASE_URL:-https://api.ovatu.com/v1}
+
+      # Polling frequency (seconds)
+      - POLLING_INTERVAL_SEC=${POLLING_INTERVAL_SEC:-60}
+
+      # JWT secret (auto-generated if not set — set a stable value in production!)
+      - JWT_SECRET=${JWT_SECRET:-}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
